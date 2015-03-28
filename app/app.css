@@ -1,0 +1,78 @@
+/* app css stylesheet */
+
+body {
+  background-color: #FAFAFA;
+}
+
+.menu {
+  list-style: none;
+  border-bottom: 0.1em solid black;
+  margin-bottom: 2em;
+  padding: 0 0 0.5em;
+}
+
+.menu:before {
+  content: "[";
+}
+
+.menu:after {
+  content: "]";
+}
+
+.menu > li {
+  display: inline;
+}
+
+.menu > li:before {
+  content: "|";
+  padding-right: 0.3em;
+}
+
+.menu > li:nth-child(1):before {
+  content: "";
+  padding: 0;
+}
+
+md-whiteframe {
+  padding: 20px;
+}
+
+.center-content {
+  margin: auto;
+  max-width: 1200px;
+}
+
+.icon-off {
+  color: #757575;
+}
+
+.grey {
+  color: #BDBDBD; 
+}
+
+.small-circle {
+  border-radius: 50px;
+  background:linear-gradient(to bottom, #40b3ff, #09f);
+  height: 25px;
+  width: 25px;
+  text-align: center;
+  line-height: 25px;
+  color: #fff;
+  font-size: 10px;
+}
+
+.circle {
+  border-radius: 50px;
+  /*background: #000;*/
+  background:linear-gradient(to bottom, #40b3ff, #09f);
+  height: 50px;
+  width: 50px;
+  text-align: center;
+  line-height: 50px;
+  color: #fff;
+  font-size: 20px;
+}
+
+.text-pad {
+  padding-top: 10px;
+}

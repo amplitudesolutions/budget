@@ -1,0 +1,17 @@
+{
+  "name": "budget",
+  "description": "Mindyour Budget",
+  "version": "0.0.0",
+  "homepage": "",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.3.9",
+    "angular-route": "~1.3.9",
+    "angular-loader": "~1.3.9",
+    "angular-mocks": "~1.3.9",
+    "angular-animate": "~1.3.9",
+    "angular-sanitize": "~1.3.9",
+    "angular-aria": "~1.3.9"
+  }
+}
