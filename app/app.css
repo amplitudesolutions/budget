@@ -50,15 +50,20 @@ md-whiteframe {
   color: #BDBDBD; 
 }
 
+.green {
+  color: #2E7D32;
+}
+
 .small-circle {
   border-radius: 50px;
   background:linear-gradient(to bottom, #40b3ff, #09f);
   height: 25px;
   width: 25px;
   text-align: center;
-  line-height: 25px;
+  line-height: 27px;
   color: #fff;
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: bold;
 }
 
 .circle {
@@ -75,4 +80,10 @@ md-whiteframe {
 
 .text-pad {
   padding-top: 10px;
+}
+
+.fab-button {
+  position: fixed;
+  right: 24px;
+  bottom: 25px;
 }
