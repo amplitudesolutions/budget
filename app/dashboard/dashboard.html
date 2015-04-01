@@ -1,164 +1,123 @@
 <md-content class="md-padding">
 	<div layout="column" class="center-content">
-		<h3 class="icon-off">March</h3>
-		<div class="md-whiteframe-z1" layout-align="center center">
-			<md-list layout-fill>
-		      <md-item ng-repeat="item in transactions | orderBy: 'date'">
-		        <md-item-content ng-class="{grey: !item.complete}">
-		          <div class="md-tile-content">
-		            <div layout="row">
-			          	<div flex="5">
-			          		<md-button aria-label="Transaction Date">
-			          			<div class="small-circle">
-									{{ item.date | date:'d' }}
-								</div>
-							</md-button>
-			          	</div>
-			            <div flex class="text-pad">
-			            	<div>{{ item.description }}</div>
-			            </div>
-			            <div flex="10" class="text-pad">
-			            	+ {{ item.amount | currency }}
-			            </div>
-			            <div flex="10" class="text-pad">
-			            	
-			            </div>
-			            <div>
-			            	<md-button aria-label="Setup Recurring Item" ng-click="setRecurring($event)">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_query_builder_24px.svg" class="icon-off"></md-icon>
-			            	</md-button>
-			            	<md-button aria-label="Mark as Complete" ng-click="markComplete(item)">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_done_24px.svg" class="icon-off" ng-class="{green: item.completed}"></md-icon>
-			            	</md-button>
-			            	<md-button aria-label="More Options">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/navigation/svg/production/ic_close_24px.svg" class="icon-off"></md-icon>
-			            	</md-button>
-			            </div>
-			        </div>
-		          </div>
-		        </md-item-content>
-		        <md-divider ng-if="!$last"></md-divider>
-		      </md-item>
-		      <md-item ng-show="isAddingNewTransaction">
-		      	<md-divider></md-divider>
-		        <md-item-content>
-		          <div class="md-tile-content">
-		            <div layout="row">
-			          	<div flex="10">
-			          		<md-input-container>
-			          			<label>Date</label>
-			          			<input ng-model="newTransaction.date">
-			          		</md>
-			          	</div>
-			            <div flex>
-			            	<md-input-container>
-			            		<label>Description</label>
-			            		<input ng-model="newTransaction.description">
-			            	</md-input-container>
-			            </div>
-			            <div flex="10">
-			            	<md-input-container>
-			            		<label>Amount</label>
-			            		<input ng-model="newTransaction.amount">
-			            	</md-input-container>
-			            </div>
-			            <div flex="5">
-						</div>			            
-			            <div>
-			            	<md-button aria-label="Setup Recurring Item">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_query_builder_24px.svg" class="icon-off"></md-icon>
-			            	</md-button>
-			            	<md-button aria-label="Add Transaction" ng-click="addTransaction()">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_done_24px.svg" class="icon-off"></md-icon>
-			            	</md-button>
-			            	<md-button aria-label="Add Transaction and Mark Complete" ng-click="addAndMarkComplete()">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_done_all_24px.svg" class="icon-off"></md-icon>
-			            	</md-button>
-			            	<md-button aria-label="Cancel Add Transaction" ng-click="cancelNewTransaction()">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/navigation/svg/production/ic_close_24px.svg" class="icon-off"></md-icon>
-			            	</md-button>
-			            </div>
-			        </div>
-		          </div>
-		        </md-item-content>
-		      </md-item>
-		    </md-list>
-		</div>
-		<h3 class="icon-off">April</h3>
-		<div class="md-whiteframe-z1" layout-align="center center">
-			<md-list layout-fill>
-		      <md-item>
-		        <md-item-content>
-		          <div class="md-tile-content">
-		            <div layout="row">
-			          	<div flex="5">
-			          		<md-button>
-				          		<div class="small-circle">
-									1
-								</div>
-							</md-button>
-			          	</div>
-			            <div flex class="text-pad">Condo Fee's</div>
-			            <div flex="10" class="text-pad">
-			            	+ $1000.00
-			            </div>
-			            <div flex="10" class="text-pad">
-			            	$1500.00
-			            </div>
-			            <div>
-			            	<md-button aria-label="Setup Recurring Item">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_query_builder_24px.svg" class="icon-off"></md-icon>
-			            	</md-button>
-			            	<md-button aria-label="Mark as Complete">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_done_24px.svg" class="icon-off"></md-icon>
-			            	</md-button>
-			            	<md-button aria-label="More Options">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/content/svg/production/ic_clear_24px.svg" class="icon-off"></md-icon>
-			            	</md-button>
-			            </div>
-			        </div>
-		          </div>
-		        </md-item-content>
-		        <md-divider ng-if="!$last"></md-divider>
-		      </md-item>
-		      <md-item>
-		        <md-item-content>
-		          <div class="md-tile-content">
-		            <div layout="row">
-			          	<div flex="5">
-			          		<md-button>
-				          		<div class="small-circle">
-									1
-								</div>
-							</md-button>
-			          	</div>
-			            <div flex class="text-pad">Line of Credit</div>
-			            <div flex="10" class="text-pad">
-			            	+ $1000.00
-			            </div>
-			            <div flex="10" class="text-pad">
-			            	$1500.00
-			            </div>
-			            <div>
-			            	<md-button aria-label="Setup Recurring Item">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_query_builder_24px.svg" class="icon-off"></md-icon>
-			            	</md-button>
-			            	<md-button aria-label="Mark as Complete">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_done_24px.svg" class="icon-off"></md-icon>
-			            	</md-button>
-			            	<md-button aria-label="More Options">
-			            		<md-icon md-svg-src="bower_components/material-design-icons/navigation/svg/production/ic_more_vert_24px.svg" class="icon-off"></md-icon>
-			            	</md-button>
-			            </div>
-			        </div>
-		          </div>
-		        </md-item-content>
-		        <md-divider ng-if="!$last"></md-divider>
-		      </md-item>
-		    </md-list>
+		<div ng-repeat="month in filteredMonths">
+			<h3 class="icon-off">{{month}}</h3>
+			<div class="md-whiteframe-z1" layout-align="center center">
+				<md-list layout-fill>
+				  <md-item ng-if="$first">
+				  	<md-item-content>
+				  		<div class="md-tile-content">
+				  			<div layout="column">
+				  			<div flex >
+					  			More
+					  		</div>
+					  	</div>
+				  		</div>
+				  	</md-item-content>
+				  	<md-divider></md-divider>
+				  </md-item>
+			      <md-item ng-repeat="item in transactions | getTransactionsByMonth: month | orderBy: 'date'">
+			        <md-item-content ng-class="{grey: !item.complete}">
+			          <div class="md-tile-content">
+			            <div layout="row">
+				          	<div flex="5">
+				          		<md-button aria-label="Transaction Date">
+				          			<div class="small-circle">
+										{{ item.date | date:'d' }}
+									</div>
+								</md-button>
+				          	</div>
+				            <div flex class="text-pad">
+				            	<div>{{ item.description }}</div>
+				            </div>
+				            <div flex="10" class="text-pad">
+				            	<span ng-if="item.type === 'W'">-</span>
+				            	<span ng-if="item.type === 'D'">+</span>
+				            	{{ item.amount | currency }}
+				            </div>
+				            <div flex="10" class="text-pad">
+				            	
+				            </div>
+				            <div>
+				            	<md-button aria-label="Setup Recurring Item" ng-click="setRecurring($event)">
+				            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_query_builder_24px.svg" class="icon-off"></md-icon>
+				            	</md-button>
+				            	<md-button aria-label="Mark as Complete" ng-click="markComplete(item)">
+				            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_done_24px.svg" class="icon-off" ng-class="{green: item.complete}"></md-icon>
+				            	</md-button>
+				            	<md-button aria-label="More Options">
+				            		<md-icon md-svg-src="bower_components/material-design-icons/navigation/svg/production/ic_close_24px.svg" class="icon-off"></md-icon>
+				            	</md-button>
+				            </div>
+				        </div>
+			          </div>
+			        </md-item-content>
+			        <md-divider ng-if="!$last"></md-divider>
+			      </md-item>
+			      <md-item ng-show="isAddingNewTransaction" ng-if="$middle">
+			      	<md-divider></md-divider>
+			        <md-item-content>
+			          <div class="md-tile-content">
+			            <div layout="row">
+				          	<div flex="10">
+				          		<md-input-container>
+				          			<label>Date</label>
+				          			<input ng-model="newTransaction.date">
+				          		</md>
+				          	</div>
+				            <div flex>
+				            	<md-input-container>
+				            		<label>Description</label>
+				            		<input ng-model="newTransaction.description">
+				            	</md-input-container>
+				            </div>
+				            <div flex="10">
+				            	<md-input-container>
+				            		<label>Amount</label>
+				            		<input ng-model="newTransaction.amount">
+				            	</md-input-container>
+				            </div>
+				            <div flex="10">
+				            	<md-select placeholder="Type" ng-model="newTransaction.type">
+							    	<md-option value="W">Withdrawal</md-option>
+							    	<md-option value="D">Deposit</md-option>
+								</md-select>
+							</div>			            
+				            <div>
+				            	<md-button aria-label="Setup Recurring Item">
+				            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_query_builder_24px.svg" class="icon-off"></md-icon>
+				            	</md-button>
+				            	<md-button aria-label="Add Transaction" ng-click="addTransaction()">
+				            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_done_24px.svg" class="icon-off"></md-icon>
+				            	</md-button>
+				            	<md-button aria-label="Add Transaction and Mark Complete" ng-click="addAndMarkComplete()">
+				            		<md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_done_all_24px.svg" class="icon-off"></md-icon>
+				            	</md-button>
+				            	<md-button aria-label="Cancel Add Transaction" ng-click="cancelNewTransaction()">
+				            		<md-icon md-svg-src="bower_components/material-design-icons/navigation/svg/production/ic_close_24px.svg" class="icon-off"></md-icon>
+				            	</md-button>
+				            </div>
+				        </div>
+			          </div>
+			        </md-item-content>
+			      </md-item>
+			      <md-item ng-if="$last">
+				  	<md-divider></md-divider>
+				  	<md-item-content>
+				  		<div class="md-tile-content">
+				  			<div layout="column">
+				  			<div flex >
+					  			More
+					  		</div>
+					  	</div>
+				  		</div>
+				  	</md-item-content>
+				  </md-item>
+			    </md-list>
+			</div>
 		</div>
 		<div class="fab-button">
-	      	<md-button class="md-fab" aria-label="Add" style="margin: 20px;" ng-click="addNewTransaction()">
+	      	<md-button class="md-fab" aria-label="Add" style="margin: 20px;" ng-click="addNewTransaction($event)">
 	        	<md-icon md-svg-src="bower_components/material-design-icons/content/svg/production/ic_add_24px.svg"></md-icon>
 	      	</md-button>
 	  	</div>

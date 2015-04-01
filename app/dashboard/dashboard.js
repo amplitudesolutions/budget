@@ -10,16 +10,25 @@ angular.module('myApp.dashboard', ['ngRoute'])
 }])
 
 .controller('DashboardCtrl', ['$scope','$mdDialog', '$filter', 'transactions', function($scope, $mdDialog, $filter, transactions) {
+	$scope.months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+	$scope.filteredMonths = [];
+
 	$scope.transactions = transactions.get();
-	$scope.newTransaction = {};
-	$scope.isAddingNewTransaction = false;
 
 	//Used for the Mark Recurring Dialog.
 	var today = new Date();
 	$scope.starts = $filter('date')(today, 'MM/dd/yyyy');
 
-	var total = 0;
+	// var currentMonth = today.getMonth();
 
+	$scope.displayMonths = function(selectedMonth) {
+		// Need to figure out how to handle it, if current month is 0 (Jan), need to display Dec and Feb.
+		$scope.filteredMonths = $scope.months.slice(selectedMonth - 1, selectedMonth + 2);
+	}
+
+	$scope.displayMonths(today.getMonth());
+
+	var total = 0;
 	$scope.calculateTotal = function(index) {
 		if (item.type === 'W') {
 			//Withdrawal
@@ -31,9 +40,33 @@ angular.module('myApp.dashboard', ['ngRoute'])
 		return total;
 	}
 
-	$scope.addNewTransaction = function() {
-		$scope.isAddingNewTransaction = true;
+	$scope.addNewTransaction = function($event) {
+		var parentEl = angular.element(document.body);
+      	
+      	$mdDialog.show({
+        	parent: parentEl,
+	        targetEvent: $event,
+	        templateUrl: 'dashboard/addtransaction.tmpl.html',
+			controller: DialogController
+      	});
+		
+		function DialogController($scope, $mdDialog) {				
+			$scope.addTransaction = function() {
+				transactions.add($scope.newTransaction).then(function(result) {
+					$mdDialog.hide();
+				});
+			}
+        
+        	$scope.cancelDialog = function() {
+        		$mdDialog.hide();
+        	}
+      	}
 	}
+
+	$scope.addAndMarkComplete = function() {
+		$scope.newTransaction.complete = true;
+		$scope.addTransaction();
+	};
 
 	$scope.cancelNewTransaction = function() {
 		$scope.isAddingNewTransaction = false;
@@ -43,17 +76,6 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	$scope.markComplete = function(transaction) {
 		transactions.setComplete(transaction);
 	}
-
-	$scope.addTransaction = function() {
-		transactions.add($scope.newTransaction).then(function(result) {
-			$scope.newTransaction = {};
-		});
-	}
-
-	$scope.addAndMarkComplete = function() {
-		$scope.newTransaction.complete = true;
-		$scope.addTransaction();
-	};
 
 	$scope.setRecurring = function($event) {
 		var parentEl = angular.element(document.body);
@@ -101,15 +123,39 @@ angular.module('myApp.dashboard', ['ngRoute'])
 
 }])
 
-.factory('transactions', ['$q', function($q) {
-	var transactions = [
-		//Store date in milliseconds
-		{id: 1, date: 1425196800000, description: 'Borrow from XXX', amount: 5000, type: 'D', complete: false},
-		{id: 5, date: 1426316400000, description: 'Car Payment', amount: 650, type: 'W', complete: true},
-		{id: 2, date: 1425196800000, description: 'Rent', amount: 1500, type: 'W', complete: true},
-		{id: 3, date: 1425196800000, description: 'Condo Fees', amount: 214.50, type: 'W', complete: false},
-		{id: 6, date: 1426748400000, description: 'Car Insurance', amount: 105.34, type: 'W', complete: false}
-	];
+.filter('getTransactionsByMonth', function() {
+	return function(items, month) {
+		var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+		var filtered = [];
+		for (var i = 0; i < items.length; i++) {
+			var item = items[i];
+			var date = new Date(item.date);
+
+			if (months[date.getUTCMonth()] === month) {
+				filtered.push(item);
+			}
+		}
+
+		return filtered;
+	};
+})
+
+.factory('getDBUrl', ['$location', function($location) {
+	var dbURL = null;
+	if ($location.host() == 'localhost' || $location.host() == 'mybudget.firebaseapp.com') {
+		// DEV DB
+    	dbURL = "https://mybudget.firebaseio.com";
+	} else if ($location.host() == 'mybudget.firebaseapp.com') {
+		dbURL = "https://mybudget.firebaseio.com";
+	}
+	
+	return {path: dbURL};
+}])
+
+.factory('transactions', ['$q', '$firebaseArray', 'getDBUrl', function($q, $firebaseArray, getDBUrl) {
+	var baseRef = new Firebase(getDBUrl.path);
+	var transactionRef = baseRef.child("transactions");
+	var transactions = $firebaseArray(transactionRef);
 
 	var recurring = [
 		{id: 1, date: 1426748400000, description: 'Rent', amount: 1500, type: 'W', repeats: 'monthly'}
@@ -122,27 +168,19 @@ angular.module('myApp.dashboard', ['ngRoute'])
 		add: function(transaction) {
 			var deferred = $q.defer();
 
-			//convert to milliseconds
-			transaction.date = new Date(transaction.date).getTime();
-
-			transactions.push(transaction);
-			deferred.resolve(transaction);
+			transactions.$add(transaction).then(function(ref){
+				deferred.resolve(transaction);	
+			})			
 
 			return deferred.promise;
 		},
 		setComplete: function(transaction) {
 			var deferred = $q.defer();
 
-			// Mark item as complete, set complete = true;
-			transactions.forEach(function (item) {
-				if (transaction.id === item.id) {
-					item.complete = !item.complete;
-					deferred.resolve(item);
-				}
-			});
+			transaction.complete = !transaction.complete;
+			transactions.$save(transaction);
 
 			return deferred.promise;
-
 		},
 		setRecurring: function(transaction, details) {
 

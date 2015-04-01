@@ -6,7 +6,8 @@ angular.module('myApp', [
   'myApp.dashboard',
   'myApp.view2',
   'myApp.version',
-  'ngMaterial'
+  'ngMaterial',
+  'firebase'
 ])
 
 // lo dash, that way you can use Dependency injection.
