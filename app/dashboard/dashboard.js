@@ -14,7 +14,13 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	$scope.filteredMonths = [];
 
 	$scope.transactions = transactions.get();
+	$scope.balances = transactions.getBalances();
+	//$scope.openingBalance = transactions.getOpeningBalance();
 
+	transactions.getOpeningBalance().then(function(ref) {
+		$scope.openingBalance = ref;	
+	})
+	
 	//Used for the Mark Recurring Dialog.
 	var today = new Date();
 	$scope.starts = $filter('date')(today, 'MM/dd/yyyy');
@@ -38,6 +44,12 @@ angular.module('myApp.dashboard', ['ngRoute'])
 			total += item.amount;
 		}
 		return total;
+	}
+
+	$scope.removeTransaction = function(transaction) {
+		transactions.delete(transaction).then(function(result) {
+			//do toast message here.
+		});
 	}
 
 	$scope.addNewTransaction = function($event) {
@@ -123,7 +135,13 @@ angular.module('myApp.dashboard', ['ngRoute'])
 
 }])
 
-.filter('getTransactionsByMonth', function() {
+.filter('getTotal', [function(){
+	return function(data, key) {
+
+	}
+}])
+
+.filter('getTransactionsByMonth', ['$filter', function($filter) {
 	return function(items, month) {
 		var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 		var filtered = [];
@@ -136,9 +154,19 @@ angular.module('myApp.dashboard', ['ngRoute'])
 			}
 		}
 
-		return filtered;
+		// Default to previous month
+		var itemsToDisplay = -1;
+		var date = new Date();
+		if (months[date.getUTCMonth()] === month ) {
+			itemsToDisplay = 9999;
+		} else if (months[date.getUTCMonth()+1] === month){
+			//Next Month
+			itemsToDisplay = 1;
+		}
+
+		return $filter('limitTo')(filtered, itemsToDisplay, 0);
 	};
-})
+}])
 
 .factory('getDBUrl', ['$location', function($location) {
 	var dbURL = null;
@@ -152,25 +180,84 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	return {path: dbURL};
 }])
 
-.factory('transactions', ['$q', '$firebaseArray', 'getDBUrl', function($q, $firebaseArray, getDBUrl) {
+.factory('transactions', ['$q', '$firebaseArray', '$firebaseObject', 'getDBUrl', function($q, $firebaseArray, $firebaseObject, getDBUrl) {
 	var baseRef = new Firebase(getDBUrl.path);
 	var transactionRef = baseRef.child("transactions");
+	var optionsRef = baseRef.child("options");
 	var transactions = $firebaseArray(transactionRef);
+	var options = $firebaseObject(optionsRef);
 
 	var recurring = [
 		{id: 1, date: 1426748400000, description: 'Rent', amount: 1500, type: 'W', repeats: 'monthly'}
 	];
 
+	var balanceArray = {};
+
+	function calculateBalance() {
+		//Loop through all transactions, calculating the balance.
+		//Create a refereance array for the balance.
+		var openingBalance = 0;
+		var previousTransaction = '';
+		options.$loaded().then(function() {
+			openingBalance = options.startingbalance;
+
+			angular.forEach(transactions, function(key, val) {
+				//console.log(key);
+				if (previousTransaction === '') {
+					if (key.type === 'W') {
+						balanceArray[key.$id] = parseFloat(openingBalance) - parseFloat(key.amount);
+					} else if (key.type === 'D') {
+						balanceArray[key.$id] = parseFloat(openingBalance) + parseFloat(key.amount);
+					}
+				} else {
+					if (key.type === 'W') {
+						balanceArray[key.$id] = parseFloat(balanceArray[previousTransaction]) - parseFloat(key.amount); 
+					} else if (key.type === 'D') {
+						balanceArray[key.$id] = parseFloat(balanceArray[previousTransaction]) + parseFloat(key.amount);
+					}
+				}
+				previousTransaction = key.$id;
+				//console.log(balanceArray['-JlsYsQ8v5o17jXXk9Ok']);
+				//balanceArray[key.$id] = key.amount + openingBalance; 
+			});
+			//console.log(balanceArray);	
+		});
+				
+
+		//var balances = { -askejerer: {balance: 1232.22}, -asdsaewer: {2322.23} }
+	}
+
 	return {
 		get: function() {
+			calculateBalance();
 			return transactions;
+		},
+		getOpeningBalance: function() {
+			var deferred = $q.defer();
+			
+			options.$loaded().then(function() {
+				deferred.resolve(options.startingbalance);
+			});
+			return deferred.promise;
+		},
+		getBalances: function() {
+			return balanceArray;
 		},
 		add: function(transaction) {
 			var deferred = $q.defer();
 
-			transactions.$add(transaction).then(function(ref){
-				deferred.resolve(transaction);	
-			})			
+			transactions.$add(transaction).then(function(ref) {
+				deferred.resolve(ref);	
+			});
+
+			return deferred.promise;
+		},
+		delete: function(transaction) {
+			var deferred = $q.defer();
+			
+			transactions.$remove(transaction).then(function(ref) {
+				deferred.resolve(ref);
+			});
 
 			return deferred.promise;
 		},
