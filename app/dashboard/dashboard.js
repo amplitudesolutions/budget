@@ -5,7 +5,15 @@ angular.module('myApp.dashboard', ['ngRoute'])
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/dashboard', {
     templateUrl: 'dashboard/dashboard.html',
-    controller: 'DashboardCtrl'
+    controller: 'DashboardCtrl',
+    resolve: {
+	    // controller will not be loaded until $waitForAuth resolves
+	    // Auth refers to our $firebaseAuth wrapper in the example above
+	    "currentAuth": ["Auth", function(Auth) {
+	      // $waitForAuth returns a promise so the resolve waits for it to complete]\
+	      return Auth.$requireAuth();
+	    }]
+	}
   });
 }])
 
@@ -13,7 +21,10 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	$scope.months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 	$scope.filteredMonths = [];
 
-	$scope.transactions = transactions.get();
+	transactions.get().then(function(transData) {
+		console.log(transData);
+		$scope.transactions = transData;	
+	});
 	$scope.balances = transactions.getBalances();
 	//$scope.openingBalance = transactions.getOpeningBalance();
 
@@ -168,20 +179,8 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	};
 }])
 
-.factory('getDBUrl', ['$location', function($location) {
-	var dbURL = null;
-	if ($location.host() == 'localhost' || $location.host() == 'mybudget.firebaseapp.com') {
-		// DEV DB
-    	dbURL = "https://mybudget.firebaseio.com";
-	} else if ($location.host() == 'mybudget.firebaseapp.com') {
-		dbURL = "https://mybudget.firebaseio.com";
-	}
-	
-	return {path: dbURL};
-}])
-
-.factory('transactions', ['$q', '$firebaseArray', '$firebaseObject', 'getDBUrl', function($q, $firebaseArray, $firebaseObject, getDBUrl) {
-	var baseRef = new Firebase(getDBUrl.path);
+.factory('transactions', ['$q', '$firebaseArray', '$firebaseObject', 'getDBUrl', 'user', function($q, $firebaseArray, $firebaseObject, getDBUrl, user) {
+	var baseRef = new Firebase(getDBUrl.path + '/' + user.get().uid);
 	var transactionRef = baseRef.child("transactions");
 	var optionsRef = baseRef.child("options");
 	var transactions = $firebaseArray(transactionRef);
@@ -229,8 +228,10 @@ angular.module('myApp.dashboard', ['ngRoute'])
 
 	return {
 		get: function() {
+			var deferred = $q.defer();
 			calculateBalance();
-			return transactions;
+			deferred.resolve(transactions);
+			return deferred.promise;
 		},
 		getOpeningBalance: function() {
 			var deferred = $q.defer();

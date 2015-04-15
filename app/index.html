@@ -6,7 +6,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>My AngularJS App</title>
+  <title>mindyour.budget</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/angular_material/0.8.3/angular-material.min.css">
@@ -18,8 +18,12 @@
   <!--[if lt IE 7]>
       <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
   <![endif]-->
-  <md-toolbar layout="row" class="md-primary">
-    <h2 class="md-toolbar-tools">Mindyour.budget</h2>
+  <md-toolbar layout="row" class="md-primary" ng-controller="NavigationCtrl">
+    <div class="md-toolbar-tools">
+      <span>Mindyour.budget</span>
+      <span flex></span>
+      <md-button ng-show="signedIn" ng-click="logout()">Sign Out</md-button>
+    </div>
   </md-toolbar>
 
 
@@ -42,7 +46,7 @@
 
   <script src="app.js"></script>
   <script src="dashboard/dashboard.js"></script>
-  <script src="view2/view2.js"></script>
+  <script src="login/login.js"></script>
   <script src="components/lodash/lodash.min.js"></script>
   <script src="components/version/version.js"></script>
   <script src="components/version/version-directive.js"></script>
