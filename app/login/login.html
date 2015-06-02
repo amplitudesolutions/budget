@@ -1,18 +1,16 @@
-<md-content class="md-padding">
-	<form>
-		<div layout="row" class="center-content">
-			<md-input-container>
-				<label>Email</label>
-				<input type="email" ng-model="user.email">
-			</md-input-container>
-			<md-input-container>
-				<label>Password</label>
-				<input type="password" ng-model="user.password">
-			</md-input-container>
-		</div>
-		<div layout="row" class="center-content">
-			<md-button class="md-raised md-primary" ng-click="createAccountClick()">Create Account</md-button>&nbsp;
-			<md-button class="md-raised" ng-click="signInClick()">Sign In</md-button>
-		</div>
-	</form>
-<md-content>
+<form>
+	<div layout="row" class="center-content">
+		<md-input-container>
+			<label>Email</label>
+			<input type="email" ng-model="user.email">
+		</md-input-container>
+		<md-input-container>
+			<label>Password</label>
+			<input type="password" ng-model="user.password">
+		</md-input-container>
+	</div>
+	<div layout="row" class="center-content">
+		<md-button class="md-raised md-primary" ng-click="createAccountClick()">Create Account</md-button>&nbsp;
+		<md-button class="md-raised" ng-click="signInClick()">Sign In</md-button>
+	</div>
+</form>

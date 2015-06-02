@@ -17,12 +17,12 @@ angular.module('myApp.dashboard', ['ngRoute'])
   });
 }])
 
-.controller('DashboardCtrl', ['$scope','$mdDialog', '$filter', 'transactions', function($scope, $mdDialog, $filter, transactions) {
+.controller('DashboardCtrl', ['$scope','$mdDialog', '$filter', '$mdToast', 'transactions', function($scope, $mdDialog, $filter, $mdToast, transactions) {
 	$scope.months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 	$scope.filteredMonths = [];
 
 	transactions.get().then(function(transData) {
-		console.log(transData);
+		//console.log(transData);
 		$scope.transactions = transData;	
 	});
 	$scope.balances = transactions.getBalances();
@@ -57,11 +57,19 @@ angular.module('myApp.dashboard', ['ngRoute'])
 		return total;
 	}
 
+	$scope.showToast = function(content) {
+		$mdToast.show($mdToast.simple()
+			.content(content)
+			.action('UNDO'));
+			//.parent();
+	};
+
 	$scope.removeTransaction = function(transaction) {
 		transactions.delete(transaction).then(function(result) {
+			$scope.showToast('Item Deleted');
 			//do toast message here.
 		});
-	}
+	};
 
 	$scope.addNewTransaction = function($event) {
 		var parentEl = angular.element(document.body);
@@ -74,7 +82,7 @@ angular.module('myApp.dashboard', ['ngRoute'])
       	});
 		
 		function DialogController($scope, $mdDialog) {				
-			$scope.addTransaction = function() {
+			$scope.saveTransaction = function() {
 				transactions.add($scope.newTransaction).then(function(result) {
 					$mdDialog.hide();
 				});
@@ -84,7 +92,35 @@ angular.module('myApp.dashboard', ['ngRoute'])
         		$mdDialog.hide();
         	}
       	}
-	}
+	};
+
+	$scope.editTransaction = function($event, transaction) {
+		var parentEl = angular.element(document.body);
+
+		var editTransaction = angular.copy(transaction);
+      	
+      	$mdDialog.show({
+        	parent: parentEl,
+	        targetEvent: $event,
+	        templateUrl: 'dashboard/addtransaction.tmpl.html',
+			controller: DialogController,
+			locals: {transaction: editTransaction}
+      	});
+		
+		function DialogController($scope, $mdDialog, transaction) {				
+			$scope.newTransaction = transaction;
+
+			$scope.saveTransaction = function() {
+				transactions.edit($scope.newTransaction).then(function(result) {
+					$mdDialog.hide();
+				});
+			}
+        
+        	$scope.cancelDialog = function() {
+        		$mdDialog.hide();
+        	}
+      	}	
+	};
 
 	$scope.addAndMarkComplete = function() {
 		$scope.newTransaction.complete = true;
@@ -94,11 +130,18 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	$scope.cancelNewTransaction = function() {
 		$scope.isAddingNewTransaction = false;
 		$scope.newTransaction = {};
-	}
+	};
 
 	$scope.markComplete = function(transaction) {
 		transactions.setComplete(transaction);
-	}
+		var content = '';
+		if (transaction.complete) {
+			content = "Marked Complete";
+		} else {
+			content = "Marked Uncomplete";
+		}
+		$scope.showToast(content);
+	};
 
 	$scope.setRecurring = function($event) {
 		var parentEl = angular.element(document.body);
@@ -142,7 +185,40 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	        	$mdDialog.hide();
 	        }
 	      }
-	}
+	};
+
+	$scope.subtotal = function(index, month) {
+		// var total = 0;
+		// console.log(index);
+		// if (index === 0) {
+		// 	total = runningTotal;
+		// }
+
+		// if (index > 0) {
+		// 	console.log('in here');
+		// 	total += 1;
+		// 	console.log('total: ' + total);
+		// 	//runningTotal += 1;
+		// }
+		// return total;
+
+		var total = 0;
+
+		angular.forEach($filter('getTransactionsByMonth')($scope.transactions,month), function(value, key){
+			//Need to define opening balance for each month.
+			
+			if(key <= index) {
+				if (value.type === 'D') {
+					total += parseFloat(value.amount);
+				} else {
+					total -= parseFloat(value.amount);
+				}
+			}
+		});
+		
+		return total;
+    }
+
 
 }])
 
@@ -156,6 +232,8 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	return function(items, month) {
 		var months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 		var filtered = [];
+		items = $filter('orderBy')(items,'date');
+
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
 			var date = new Date(item.date);
@@ -166,13 +244,13 @@ angular.module('myApp.dashboard', ['ngRoute'])
 		}
 
 		// Default to previous month
-		var itemsToDisplay = -1;
+		var itemsToDisplay = -5;
 		var date = new Date();
 		if (months[date.getUTCMonth()] === month ) {
 			itemsToDisplay = 9999;
 		} else if (months[date.getUTCMonth()+1] === month){
 			//Next Month
-			itemsToDisplay = 1;
+			itemsToDisplay = 5;
 		}
 
 		return $filter('limitTo')(filtered, itemsToDisplay, 0);
@@ -252,6 +330,17 @@ angular.module('myApp.dashboard', ['ngRoute'])
 			});
 
 			return deferred.promise;
+		},
+		edit: function(transaction) {
+			var deferred = $q.defer();
+       	
+        	transactions[transactions.$indexFor(transaction.$id)] = transaction;
+
+			transactions.$save(transaction).then(function(ref) {
+				deferred.resolve(ref);	
+			});
+
+			return deferred.promise;	
 		},
 		delete: function(transaction) {
 			var deferred = $q.defer();
