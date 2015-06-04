@@ -30,8 +30,6 @@ angular.module('myApp.dashboard', ['ngRoute'])
 		});
 	});
 
-	
-
 	$scope.balances = transactions.getBalances();
 	//$scope.openingBalance = transactions.getOpeningBalance();
 
@@ -51,18 +49,6 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	}
 
 	$scope.displayMonths(today.getMonth());
-
-	// var total = 0;
-	// $scope.calculateTotal = function(index) {
-	// 	if (item.type === 'W') {
-	// 		//Withdrawal
-	// 		$scope.transactions[index].total -= item.amount;
-	// 	} else {
-	// 		//Deposit 'D'
-	// 		total += item.amount;
-	// 	}
-	// 	return total;
-	// }
 
 	$scope.showToast = function(content) {
 		$mdToast.show($mdToast.simple()
@@ -245,7 +231,7 @@ angular.module('myApp.dashboard', ['ngRoute'])
 		options.$loaded().then(function() {
 			openingBalance = options.startingbalance;
 
-			angular.forEach($filter('orderBy')(transactions, 'date'), function(key, val) {
+			angular.forEach($filter('orderBy')(transactions, ['date', 'order']), function(key, val) {
 				if (previousTransaction === '') {
 					if (key.type === 'W') {
 						balanceArray[key.$id] = parseFloat(openingBalance) - parseFloat(key.amount);
@@ -287,8 +273,12 @@ angular.module('myApp.dashboard', ['ngRoute'])
 		add: function(transaction) {
 			var deferred = $q.defer();
 
-			transactions.$add(transaction).then(function(ref) {
-				deferred.resolve(ref);	
+			baseRef.child("transactions").orderByChild("date").equalTo(transaction.date).once("value", function(data) {
+				console.log(data.numChildren());
+				transaction.order = data.numChildren();
+				transactions.$add(transaction).then(function(ref) {
+					deferred.resolve(ref);	
+				});				
 			});
 
 			return deferred.promise;

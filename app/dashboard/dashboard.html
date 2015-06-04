@@ -15,7 +15,7 @@
 			  	</md-item-content>
 			  	<md-divider></md-divider>
 			  </md-item> -->
-		      <md-item ng-repeat="item in transactions | getTransactionsByMonth: month | orderBy:'-date'">
+		      <md-item ng-repeat="item in transactions | getTransactionsByMonth: month | orderBy:['-date', '-order']">
 		        <md-item-content ng-class="{grey: !item.complete}">
 		          <div class="md-tile-content">
 		            <div layout="row">
