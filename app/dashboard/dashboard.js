@@ -24,7 +24,14 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	transactions.get().then(function(transData) {
 		//console.log(transData);
 		$scope.transactions = transData;	
+
+		$scope.transactions.$watch(function(){
+			$scope.balances = transactions.getBalances();		
+		});
 	});
+
+	
+
 	$scope.balances = transactions.getBalances();
 	//$scope.openingBalance = transactions.getOpeningBalance();
 
@@ -45,17 +52,17 @@ angular.module('myApp.dashboard', ['ngRoute'])
 
 	$scope.displayMonths(today.getMonth());
 
-	var total = 0;
-	$scope.calculateTotal = function(index) {
-		if (item.type === 'W') {
-			//Withdrawal
-			$scope.transactions[index].total -= item.amount;
-		} else {
-			//Deposit 'D'
-			total += item.amount;
-		}
-		return total;
-	}
+	// var total = 0;
+	// $scope.calculateTotal = function(index) {
+	// 	if (item.type === 'W') {
+	// 		//Withdrawal
+	// 		$scope.transactions[index].total -= item.amount;
+	// 	} else {
+	// 		//Deposit 'D'
+	// 		total += item.amount;
+	// 	}
+	// 	return total;
+	// }
 
 	$scope.showToast = function(content) {
 		$mdToast.show($mdToast.simple()
@@ -186,46 +193,6 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	        }
 	      }
 	};
-
-	$scope.subtotal = function(index, month) {
-		// var total = 0;
-		// console.log(index);
-		// if (index === 0) {
-		// 	total = runningTotal;
-		// }
-
-		// if (index > 0) {
-		// 	console.log('in here');
-		// 	total += 1;
-		// 	console.log('total: ' + total);
-		// 	//runningTotal += 1;
-		// }
-		// return total;
-
-		var total = 0;
-
-		angular.forEach($filter('getTransactionsByMonth')($scope.transactions,month), function(value, key){
-			//Need to define opening balance for each month.
-			
-			if(key <= index) {
-				if (value.type === 'D') {
-					total += parseFloat(value.amount);
-				} else {
-					total -= parseFloat(value.amount);
-				}
-			}
-		});
-		
-		return total;
-    }
-
-
-}])
-
-.filter('getTotal', [function(){
-	return function(data, key) {
-
-	}
 }])
 
 .filter('getTransactionsByMonth', ['$filter', function($filter) {
@@ -244,20 +211,20 @@ angular.module('myApp.dashboard', ['ngRoute'])
 		}
 
 		// Default to previous month
-		var itemsToDisplay = -5;
+		var itemsToDisplay = -1;
 		var date = new Date();
 		if (months[date.getUTCMonth()] === month ) {
 			itemsToDisplay = 9999;
 		} else if (months[date.getUTCMonth()+1] === month){
 			//Next Month
-			itemsToDisplay = 5;
+			itemsToDisplay = 1;
 		}
 
 		return $filter('limitTo')(filtered, itemsToDisplay, 0);
 	};
 }])
 
-.factory('transactions', ['$q', '$firebaseArray', '$firebaseObject', 'getDBUrl', 'user', function($q, $firebaseArray, $firebaseObject, getDBUrl, user) {
+.factory('transactions', ['$q', '$filter', '$firebaseArray', '$firebaseObject', 'getDBUrl', 'user', function($q, $filter, $firebaseArray, $firebaseObject, getDBUrl, user) {
 	var baseRef = new Firebase(getDBUrl.path + '/' + user.get().uid);
 	var transactionRef = baseRef.child("transactions");
 	var optionsRef = baseRef.child("options");
@@ -278,8 +245,7 @@ angular.module('myApp.dashboard', ['ngRoute'])
 		options.$loaded().then(function() {
 			openingBalance = options.startingbalance;
 
-			angular.forEach(transactions, function(key, val) {
-				//console.log(key);
+			angular.forEach($filter('orderBy')(transactions, 'date'), function(key, val) {
 				if (previousTransaction === '') {
 					if (key.type === 'W') {
 						balanceArray[key.$id] = parseFloat(openingBalance) - parseFloat(key.amount);
@@ -294,15 +260,11 @@ angular.module('myApp.dashboard', ['ngRoute'])
 					}
 				}
 				previousTransaction = key.$id;
-				//console.log(balanceArray['-JlsYsQ8v5o17jXXk9Ok']);
-				//balanceArray[key.$id] = key.amount + openingBalance; 
 			});
-			//console.log(balanceArray);	
 		});
-				
 
-		//var balances = { -askejerer: {balance: 1232.22}, -asdsaewer: {2322.23} }
-	}
+		return balanceArray;
+	};
 
 	return {
 		get: function() {
@@ -320,7 +282,7 @@ angular.module('myApp.dashboard', ['ngRoute'])
 			return deferred.promise;
 		},
 		getBalances: function() {
-			return balanceArray;
+			return calculateBalance();
 		},
 		add: function(transaction) {
 			var deferred = $q.defer();

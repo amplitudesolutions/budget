@@ -1,5 +1,5 @@
 <div layout="column" class="center-content">
-	<div ng-repeat="month in filteredMonths">
+	<div ng-repeat="month in filteredMonths | orderBy:predicate:reverse">
 		<h3 class="icon-off">{{month}}</h3>
 		<div class="md-whiteframe-z1" layout-align="center center">
 			<md-list layout-fill>
@@ -15,7 +15,7 @@
 			  	</md-item-content>
 			  	<md-divider></md-divider>
 			  </md-item> -->
-		      <md-item ng-repeat="item in transactions | getTransactionsByMonth: month">
+		      <md-item ng-repeat="item in transactions | getTransactionsByMonth: month | orderBy:'-date'">
 		        <md-item-content ng-class="{grey: !item.complete}">
 		          <div class="md-tile-content">
 		            <div layout="row">
@@ -35,7 +35,7 @@
 			            	{{ item.amount | currency }}
 			            </div>
 			            <div flex="10" class="text-pad">
-			            	{{ subtotal($index, month) | currency }}
+			            	{{ balances[item.$id] | currency }}
 			            </div>
 			            <div>
 			            	<md-button aria-label="Setup Recurring Item" ng-click="setRecurring($event)">
@@ -53,7 +53,7 @@
 		        </md-item-content>
 		        <md-divider ng-if="!$last"></md-divider>
 		      </md-item>
-		      <md-item ng-show="isAddingNewTransaction" ng-if="$middle">
+		      <!-- <md-item ng-show="isAddingNewTransaction" ng-if="$middle">
 		      	<md-divider></md-divider>
 		        <md-item-content>
 		          <div class="md-tile-content">
@@ -99,7 +99,7 @@
 			        </div>
 		          </div>
 		        </md-item-content>
-		      </md-item>
+		      </md-item> -->
 		      <!-- <md-item ng-if="$last">
 			  	<md-divider></md-divider>
 			  	<md-item-content>
