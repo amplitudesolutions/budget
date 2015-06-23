@@ -5,6 +5,7 @@ angular.module('myApp', [
   'ngRoute',
   'myApp.dashboard',
   'myApp.login',
+  'myApp.list',
   'myApp.version',
   'ngMaterial',
   'firebase'
