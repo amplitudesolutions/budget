@@ -1,16 +1,32 @@
-<form>
-	<div layout="row" class="center-content">
-		<md-input-container>
-			<label>Email</label>
-			<input type="email" ng-model="user.email">
-		</md-input-container>
-		<md-input-container>
-			<label>Password</label>
-			<input type="password" ng-model="user.password">
-		</md-input-container>
+<div layout="column" class="center-content">
+	<div layout="column" class="center-content">
+		<div class="md-whiteframe-z1">
+			<md-toolbar>
+				<div class="md-toolbar-tools">
+					<span>Login</span>
+					<span flex></span>
+				</div>
+			</md-toolbar>
+			<md-content class="md-padding">
+				<form novalidate name="login" ng-submit="login.$valid && signInClick()">
+					<md-input-container ng-class="{'md-input-invalid': login.$submitted && !login.userEmail.$valid || userErrorCaught}">
+						<label>Email</label>
+						<input type="email" ng-model="user.email" required name="userEmail">
+						<div ng-messages="login.userEmail.$error" ng-show="userErrorCaught">
+							<div ng-message="required">{{userError}}</div>
+				        </div>
+					</md-input-container>
+					<md-input-container ng-class="{'md-input-invalid': login.$submitted && !login.userPassword.$valid || passwordErrorCaught}">
+						<label>Password</label>
+						<input type="password" name="userPassword" ng-model="user.password" required>
+						<div ng-messages="login.userPassword.$error" ng-show="passwordErrorCaught">
+							<div ng-message="required">{{passwordError}}</div>
+				        </div>
+					</md-input-container>
+					<md-button class="md-raised" ng-click="createAccountClick()">Create Account</md-button>&nbsp;
+					<md-button class="md-raised md-primary">Sign In</md-button>
+				</form>
+			</md-content>
+		</div>
 	</div>
-	<div layout="row" class="center-content">
-		<md-button class="md-raised md-primary" ng-click="createAccountClick()">Create Account</md-button>&nbsp;
-		<md-button class="md-raised" ng-click="signInClick()">Sign In</md-button>
-	</div>
-</form>
+</div>

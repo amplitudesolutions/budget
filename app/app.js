@@ -44,7 +44,7 @@ angular.module('myApp', [
 	var dbURL = null;
 	if ($location.host() == 'localhost' || $location.host() == 'mybudget.firebaseapp.com') {
 		// DEV DB
-    	dbURL = "https://mybudget.firebaseio.com";
+    	dbURL = "https://mybudgetdev.firebaseio.com";
 	} else if ($location.host() == 'mybudget.firebaseapp.com') {
 		dbURL = "https://mybudget.firebaseio.com";
 	}

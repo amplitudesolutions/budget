@@ -25,7 +25,29 @@ angular.module('myApp.login', ['ngRoute'])
 			//$location.path("/dashboard");
 			window.location.href = "#/dashboard"
 		}).catch(function(error) {
-			console.log(error);
+			// Need to show error message on screen indicating error. ie) Bad username or password
+			$scope.userErrorCaught = false;
+			$scope.passwordErrorCaught = false;
+			$scope.userError = '';
+			$scope.passwordError = '';
+
+			switch(error.code) {
+				case "INVALID_EMAIL":
+					$scope.userErrorCaught = true;
+					$scope.userError = "Email address does not exist";
+					break;
+				case "INVALID_PASSWORD":
+					$scope.passwordErrorCaught = true;
+					$scope.passwordError = "Password is invalid, please try again";
+					break;
+				case "INVALID_USER":
+					$scope.userErrorCaught = true;
+					$scope.userError = "Email address does not exist";
+					break;
+				default:
+					console.log(error);
+			}
+
 		});
 	}
 
