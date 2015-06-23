@@ -42,7 +42,7 @@ angular.module('myApp', [
 
 .factory('getDBUrl', ['$location', function($location) {
 	var dbURL = null;
-	if ($location.host() == 'localhost' || $location.host() == 'mybudget.firebaseapp.com') {
+	if ($location.host() == 'localhost') {
 		// DEV DB
     	dbURL = "https://mybudgetdev.firebaseio.com";
 	} else if ($location.host() == 'mybudget.firebaseapp.com') {
