@@ -1,7 +1,25 @@
 <div layout="column" class="center-content">
-	<div layout="row" layout-margin layout-padding>
-		<div flex class="md-whiteframe-z1">
-			<h3 class="md-title">Personal</h3>
+
+	<md-grid-list
+        md-cols-sm="1" md-cols-md="2" md-cols-gt-md="6"
+        md-row-height-gt-md="1:1" md-row-height="4:3"
+        md-gutter="10px" md-gutter-gt-sm="10px" >
+    	<md-grid-tile ng-repeat="list in lists"
+                  md-rowspan="1"
+                  md-colspan="1"
+                  md-colspan-sm="1" class='md-whiteframe-z1'>
+                  <h3>{{list.name}}</h3>
+      		<!-- <md-grid-tile-footer layout-align="end center">
+				<md-button>Remove</md-button>
+				<md-button>Manage</md-button>
+      		</md-grid-tile-footer> -->
+    	</md-grid-tile>
+  	</md-grid-list>
+	
+	<!-- <div layout="row" layout-margin layout-padding>
+
+		<div flex class="md-whiteframe-z1" ng-repeat="list in lists">
+			<h3 class="md-title">{{list.name}}</h3>
 			<p>Last Transaction</p>
 			<p>June 1, 2015 - Rent - $1500.00</p>
 			<div class="md-actions" layout="row" layout-align="end center">
@@ -9,15 +27,9 @@
 				<md-button>Manage</md-button>
 			</div>
 		</div>
-		<div flex class="md-whiteframe-z1">
-			<h3 class="md-title">Work</h3>
-		</div>
-		<div flex class="md-whiteframe-z1">
-			<h3 class="md-title">Vacation</h3>
-		</div>
-	</div>
+	</div> -->
 	<div class="fab-button">
-      	<md-button class="md-fab" aria-label="Add" style="margin: 20px;" ng-click="addNewTransaction($event)">
+      	<md-button class="md-fab" aria-label="Add" style="margin: 20px;" ng-click="createNewList($event)">
         	<md-icon md-svg-src="bower_components/material-design-icons/content/svg/production/ic_add_24px.svg"></md-icon>
       	</md-button>
   	</div>
