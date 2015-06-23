@@ -23,7 +23,7 @@ angular.module('myApp.login', ['ngRoute'])
 	$scope.signInClick = function() {
 		user.login($scope.user).then(function(userObj) {
 			//$location.path("/dashboard");
-			window.location.href = "#/dashboard"
+			window.location.href = "#/dashboard";
 		}).catch(function(error) {
 			// Need to show error message on screen indicating error. ie) Bad username or password
 			$scope.userErrorCaught = false;
@@ -52,6 +52,12 @@ angular.module('myApp.login', ['ngRoute'])
 	}
 
 	$scope.createAccountClick = function() {
-
+		user.create($scope.user).then(function(userObj) {
+			user.login($scope.user).then(function(userObj) {
+				//$location.path("/dashboard");
+				window.location.href = "#/dashboard";
+			});
+			// Need to Add Error Handling
+		});
 	}
 }]);
