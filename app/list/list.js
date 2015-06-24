@@ -3,7 +3,7 @@
 angular.module('myApp.list', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
-  $routeProvider.when('/list', {
+  $routeProvider.when('/list/:selectedList', {
     templateUrl: 'list/list.html',
     controller: 'ListCtrl',
     resolve: {
@@ -17,12 +17,13 @@ angular.module('myApp.list', ['ngRoute'])
   });
 }])
 
-.controller('ListCtrl', ['$scope','$mdDialog', '$filter', '$mdToast', 'transactions', function($scope, $mdDialog, $filter, $mdToast, transactions) {
+.controller('ListCtrl', ['$scope','$mdDialog', '$filter', '$mdToast', '$routeParams', 'transactions', function($scope, $mdDialog, $filter, $mdToast, $routeParams, transactions) {
 	$scope.months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 	$scope.filteredMonths = [];
+	var selectedList = $routeParams.selectedList;
 
-	transactions.get().then(function(transData) {
-		//console.log(transData);
+	transactions.get(selectedList).then(function(transData) {
+	//console.log(transData);
 		$scope.transactions = transData;	
 
 		$scope.transactions.$watch(function(){
@@ -71,12 +72,13 @@ angular.module('myApp.list', ['ngRoute'])
         	parent: parentEl,
 	        targetEvent: $event,
 	        templateUrl: 'list/addtransaction.tmpl.html',
-			controller: DialogController
+			controller: DialogController,
+			locals: {list: selectedList}
       	});
 		
-		function DialogController($scope, $mdDialog) {				
+		function DialogController($scope, $mdDialog, list) {
 			$scope.saveTransaction = function() {
-				transactions.add($scope.newTransaction).then(function(result) {
+				transactions.add($scope.newTransaction, list).then(function(result) {
 					$mdDialog.hide();
 				});
 			}
@@ -253,9 +255,12 @@ angular.module('myApp.list', ['ngRoute'])
 	};
 
 	return {
-		get: function() {
+		get: function(list) {
 			var deferred = $q.defer();
-			calculateBalance();
+			var transactions = $firebaseArray(baseRef.child('lists/' + list + '/transactions'));
+
+			//calculateBalance();
+			
 			deferred.resolve(transactions);
 			return deferred.promise;
 		},
@@ -270,11 +275,12 @@ angular.module('myApp.list', ['ngRoute'])
 		getBalances: function() {
 			return calculateBalance();
 		},
-		add: function(transaction) {
+		add: function(transaction, list) {
 			var deferred = $q.defer();
 
-			baseRef.child("transactions").orderByChild("date").equalTo(transaction.date).once("value", function(data) {
-				console.log(data.numChildren());
+			var transactions = $firebaseArray(baseRef.child('lists/' + list + '/transactions'));
+
+			baseRef.child('lists/' + list + "/transactions").orderByChild("date").equalTo(transaction.date).once("value", function(data) {
 				transaction.order = data.numChildren();
 				transactions.$add(transaction).then(function(ref) {
 					deferred.resolve(ref);	

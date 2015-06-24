@@ -17,7 +17,7 @@ angular.module('myApp.dashboard', ['ngRoute'])
   });
 }])
 
-.controller('DashboardCtrl', ['$scope','$mdDialog', '$mdToast', 'lists', 'transactions', function($scope, $mdDialog, $mdToast, lists, transactions) {
+.controller('DashboardCtrl', ['$scope', '$location','$mdDialog', '$mdToast', 'lists', 'transactions', function($scope, $location, $mdDialog, $mdToast, lists, transactions) {
 	$scope.lists = lists.get();
 
 	lists.get().then(function(listData) {
@@ -45,7 +45,25 @@ angular.module('myApp.dashboard', ['ngRoute'])
         		$mdDialog.hide();
         	}
       	}
-	}	
+	};
+
+	$scope.selectList = function(list) {
+		$location.path("/list/" + list.$id);
+	};
+
+	$scope.deleteList = function(list, ev) {
+		var confirm = $mdDialog.confirm()
+			//.parent(angular.element(document.body))
+			.title('')
+			.content('Would you like to delete this list?')
+			.ariaLabel('')
+			.ok('Yes')
+			.cancel('No')
+			.targetEvent(ev);
+		$mdDialog.show(confirm).then(function() {
+			lists.delete(list);
+		});
+	};
 
 }])
 
@@ -70,7 +88,10 @@ angular.module('myApp.dashboard', ['ngRoute'])
 
 			return deferred.promise;
 		},
-		edit: function(transaction) {
+		select: function(list) {
+
+		},
+		edit: function(list) {
 			var deferred = $q.defer();
        	
         	transactions[transactions.$indexFor(transaction.$id)] = transaction;
@@ -81,10 +102,10 @@ angular.module('myApp.dashboard', ['ngRoute'])
 
 			return deferred.promise;	
 		},
-		delete: function(transaction) {
+		delete: function(list) {
 			var deferred = $q.defer();
 			
-			transactions.$remove(transaction).then(function(ref) {
+			lists.$remove(list).then(function(ref) {
 				deferred.resolve(ref);
 			});
 
