@@ -27,14 +27,14 @@ angular.module('myApp.list', ['ngRoute'])
 		$scope.transactions = transData;	
 
 		$scope.transactions.$watch(function(){
-			$scope.balances = transactions.getBalances();		
+			$scope.balances = transactions.getBalances(selectedList);		
 		});
 	});
 
-	$scope.balances = transactions.getBalances();
+	$scope.balances = transactions.getBalances(selectedList);
 	//$scope.openingBalance = transactions.getOpeningBalance();
 
-	transactions.getOpeningBalance().then(function(ref) {
+	transactions.getOpeningBalance(selectedList).then(function(ref) {
 		$scope.openingBalance = ref;	
 	})
 	
@@ -59,7 +59,7 @@ angular.module('myApp.list', ['ngRoute'])
 	};
 
 	$scope.removeTransaction = function(transaction) {
-		transactions.delete(transaction).then(function(result) {
+		transactions.delete(transaction, selectedList).then(function(result) {
 			$scope.showToast('Item Deleted');
 			//do toast message here.
 		});
@@ -99,14 +99,14 @@ angular.module('myApp.list', ['ngRoute'])
 	        targetEvent: $event,
 	        templateUrl: 'list/addtransaction.tmpl.html',
 			controller: DialogController,
-			locals: {transaction: editTransaction}
+			locals: {transaction: editTransaction, list: selectedList}
       	});
 		
-		function DialogController($scope, $mdDialog, transaction) {				
+		function DialogController($scope, $mdDialog, transaction, list) {				
 			$scope.newTransaction = transaction;
 
 			$scope.saveTransaction = function() {
-				transactions.edit($scope.newTransaction).then(function(result) {
+				transactions.edit($scope.newTransaction, list).then(function(result) {
 					$mdDialog.hide();
 				});
 			}
@@ -128,7 +128,7 @@ angular.module('myApp.list', ['ngRoute'])
 	};
 
 	$scope.markComplete = function(transaction) {
-		transactions.setComplete(transaction);
+		transactions.setComplete(transaction, selectedList);
 		var content = '';
 		if (transaction.complete) {
 			content = "Marked Complete";
@@ -214,10 +214,10 @@ angular.module('myApp.list', ['ngRoute'])
 
 .factory('transactions', ['$q', '$filter', '$firebaseArray', '$firebaseObject', 'getDBUrl', 'user', function($q, $filter, $firebaseArray, $firebaseObject, getDBUrl, user) {
 	var baseRef = new Firebase(getDBUrl.path + '/' + user.get().uid);
-	var transactionRef = baseRef.child("transactions");
-	var optionsRef = baseRef.child("options");
-	var transactions = $firebaseArray(transactionRef);
-	var options = $firebaseObject(optionsRef);
+	// var transactionRef = baseRef.child("transactions");
+	// var optionsRef = baseRef.child("options");
+	// var transactions = $firebaseArray(transactionRef);
+	// var options = $firebaseObject(optionsRef);
 
 	var recurring = [
 		{id: 1, date: 1426748400000, description: 'Rent', amount: 1500, type: 'W', repeats: 'monthly'}
@@ -225,11 +225,15 @@ angular.module('myApp.list', ['ngRoute'])
 
 	var balanceArray = {};
 
-	function calculateBalance() {
+	function calculateBalance(list) {
 		//Loop through all transactions, calculating the balance.
 		//Create a refereance array for the balance.
 		var openingBalance = 0;
 		var previousTransaction = '';
+
+		var options = $firebaseObject(baseRef.child('lists/' + list + 'options'));
+		var transactions = $firebaseArray(baseRef.child('lists/' + list + '/transactions'));
+
 		options.$loaded().then(function() {
 			openingBalance = options.startingbalance;
 
@@ -259,20 +263,21 @@ angular.module('myApp.list', ['ngRoute'])
 			var deferred = $q.defer();
 			var transactions = $firebaseArray(baseRef.child('lists/' + list + '/transactions'));
 
-			//calculateBalance();
+			calculateBalance();
 			
 			deferred.resolve(transactions);
 			return deferred.promise;
 		},
-		getOpeningBalance: function() {
+		getOpeningBalance: function(list) {
 			var deferred = $q.defer();
+			var options = $firebaseObject(baseRef.child('lists/' + list + 'options'));
 			
 			options.$loaded().then(function() {
 				deferred.resolve(options.startingbalance);
 			});
 			return deferred.promise;
 		},
-		getBalances: function() {
+		getBalances: function(list) {
 			return calculateBalance();
 		},
 		add: function(transaction, list) {
@@ -289,29 +294,40 @@ angular.module('myApp.list', ['ngRoute'])
 
 			return deferred.promise;
 		},
-		edit: function(transaction) {
+		edit: function(transaction, list) {
 			var deferred = $q.defer();
-       	
-        	transactions[transactions.$indexFor(transaction.$id)] = transaction;
+			
+			var transactions = $firebaseArray(baseRef.child('lists/' + list + '/transactions'));
 
-			transactions.$save(transaction).then(function(ref) {
-				deferred.resolve(ref);	
+			transactions.$loaded().then(function() {
+				transactions[transactions.$indexFor(transaction.$id)] = transaction;
+				transactions.$save(transaction).then(function(ref) {
+					deferred.resolve(ref);	
+				}).catch(function(error) {
+					console.log(error);
+				});
 			});
 
 			return deferred.promise;	
 		},
-		delete: function(transaction) {
+		delete: function(transaction, list) {
 			var deferred = $q.defer();
 			
-			transactions.$remove(transaction).then(function(ref) {
-				deferred.resolve(ref);
+			var transactions = $firebaseArray(baseRef.child('lists/' + list + '/transactions'));
+			transactions.$loaded().then(function() {
+				transactions.$remove(transactions[transactions.$indexFor(transaction.$id)]).then(function(ref) {
+					deferred.resolve(ref);
+				}).catch(function(error) {
+					console.log(error);
+				});
 			});
-
+			
 			return deferred.promise;
 		},
-		setComplete: function(transaction) {
+		setComplete: function(transaction, list) {
 			var deferred = $q.defer();
 
+			var transactions = $firebaseArray(baseRef.child('lists/' + list + '/transactions'));
 			transaction.complete = !transaction.complete;
 			transactions.$save(transaction);
 
