@@ -33,12 +33,24 @@ angular.module('myApp', [
 	Auth.$onAuth(function(authData) {
 		$scope.signedIn = user.get();
 	});
+
+	$scope.backToDashboard = function() {
+		$location.path("/dashboard");
+	};
+
 	
+	$scope.$on('$routeChangeSuccess', function(event, currentRoute, previousRoute) {
+		if ($location.path().split('/')[1] === 'list') {
+		 	$scope.displayBack = true;
+		} else {
+			$scope.displayBack = false;
+		};
+	});
 
 	$scope.logout = function() {
 		user.logout();
 		$location.path("/login");
-	}
+	};
 }])
 
 .factory('getDBUrl', ['$location', function($location) {
@@ -92,6 +104,4 @@ angular.module('myApp', [
 		}
 	}
 }])
-
-
 ;
