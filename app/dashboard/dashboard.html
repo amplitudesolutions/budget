@@ -4,10 +4,10 @@
         md-row-height-gt-md="1:1" md-row-height="4:3"
         md-gutter="10px" md-gutter-gt-sm="10px">
     	<md-grid-tile ng-repeat="list in lists" md-rowspan="1" md-colspan="1" md-colspan-sm="1" class="md-whiteframe-z1" ng-click="selectList(list)" ng-mouseover="footerShow = true" ng-mouseout="footerShow = false">
-            <p>{{list.name}}</p>
-      		<md-grid-tile-footer layout-padding ng-show="footerShow" class="animate-show">
-				<md-button ng-click="deleteList(list, $event)"><md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_delete_24px.svg"></md-icon></md-button>
-      		</md-grid-tile-footer>
+        <p>{{list.name}}</p>
+      	<md-grid-tile-footer layout-padding ng-show="footerShow" class="animate-show" style="z-index:999;">
+				  <md-button ng-click="deleteList(list, $event)"><md-icon md-svg-src="bower_components/material-design-icons/action/svg/production/ic_delete_24px.svg"></md-icon></md-button>
+      	</md-grid-tile-footer>
     	</md-grid-tile>
   	</md-grid-list>
 	<div class="fab-button">
