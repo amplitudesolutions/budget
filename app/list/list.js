@@ -231,11 +231,12 @@ angular.module('myApp.list', ['ngRoute'])
 		var openingBalance = 0;
 		var previousTransaction = '';
 
-		var options = $firebaseObject(baseRef.child('lists/' + list + 'options'));
+		var options = $firebaseObject(baseRef.child('lists/' + list + '/options'));
 		var transactions = $firebaseArray(baseRef.child('lists/' + list + '/transactions'));
 
 		options.$loaded().then(function() {
 			openingBalance = options.startingbalance;
+			console.log(transactions);
 
 			angular.forEach($filter('orderBy')(transactions, ['date', 'order']), function(key, val) {
 				if (previousTransaction === '') {
