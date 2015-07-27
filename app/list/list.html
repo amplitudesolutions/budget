@@ -14,7 +14,7 @@
 	            	<span ng-if="item.type === 'W'">-</span>
 	            	<span ng-if="item.type === 'D'">+</span>
 	            	{{ item.amount | currency }}
-	
+
 	            	{{ balances[item.$id] | currency }}
 	
 	            	<md-button class="md-icon-button" aria-label="Setup Recurring Item" ng-click="setRecurring($event)">

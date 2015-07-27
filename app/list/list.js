@@ -24,15 +24,14 @@ angular.module('myApp.list', ['ngRoute'])
 
 	transactions.get(selectedList).then(function(transData) {
 	//console.log(transData);
-		$scope.transactions = transData;	
+		$scope.transactions = transData;
 
 		$scope.transactions.$watch(function(){
-			$scope.balances = transactions.getBalances(selectedList);		
+			$scope.balances = transactions.getBalances(selectedList);
 		});
 	});
 
 	$scope.balances = transactions.getBalances(selectedList);
-	//$scope.openingBalance = transactions.getOpeningBalance();
 
 	transactions.getOpeningBalance(selectedList).then(function(ref) {
 		$scope.openingBalance = ref;	
@@ -233,26 +232,25 @@ angular.module('myApp.list', ['ngRoute'])
 
 		var options = $firebaseObject(baseRef.child('lists/' + list + '/options'));
 		var transactions = $firebaseArray(baseRef.child('lists/' + list + '/transactions'));
-
 		options.$loaded().then(function() {
 			openingBalance = options.startingbalance;
-			console.log(transactions);
-
-			angular.forEach($filter('orderBy')(transactions, ['date', 'order']), function(key, val) {
-				if (previousTransaction === '') {
-					if (key.type === 'W') {
-						balanceArray[key.$id] = parseFloat(openingBalance) - parseFloat(key.amount);
-					} else if (key.type === 'D') {
-						balanceArray[key.$id] = parseFloat(openingBalance) + parseFloat(key.amount);
+			transactions.$loaded().then(function() {
+				angular.forEach($filter('orderBy')(transactions, ['date', 'order']), function(key, val) {
+					if (previousTransaction === '') {
+						if (key.type === 'W') {
+							balanceArray[key.$id] = parseFloat(openingBalance) - parseFloat(key.amount);
+						} else if (key.type === 'D') {
+							balanceArray[key.$id] = parseFloat(openingBalance) + parseFloat(key.amount);
+						}
+					} else {
+						if (key.type === 'W') {
+							balanceArray[key.$id] = parseFloat(balanceArray[previousTransaction]) - parseFloat(key.amount); 
+						} else if (key.type === 'D') {
+							balanceArray[key.$id] = parseFloat(balanceArray[previousTransaction]) + parseFloat(key.amount);
+						}
 					}
-				} else {
-					if (key.type === 'W') {
-						balanceArray[key.$id] = parseFloat(balanceArray[previousTransaction]) - parseFloat(key.amount); 
-					} else if (key.type === 'D') {
-						balanceArray[key.$id] = parseFloat(balanceArray[previousTransaction]) + parseFloat(key.amount);
-					}
-				}
-				previousTransaction = key.$id;
+					previousTransaction = key.$id;
+				});
 			});
 		});
 
@@ -264,7 +262,7 @@ angular.module('myApp.list', ['ngRoute'])
 			var deferred = $q.defer();
 			var transactions = $firebaseArray(baseRef.child('lists/' + list + '/transactions'));
 
-			calculateBalance();
+			calculateBalance(list);
 			
 			deferred.resolve(transactions);
 			return deferred.promise;
@@ -279,7 +277,7 @@ angular.module('myApp.list', ['ngRoute'])
 			return deferred.promise;
 		},
 		getBalances: function(list) {
-			return calculateBalance();
+			return calculateBalance(list);
 		},
 		add: function(transaction, list) {
 			var deferred = $q.defer();
