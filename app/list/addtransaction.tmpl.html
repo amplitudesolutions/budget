@@ -1,28 +1,26 @@
 <md-dialog aria-label="Add Transaction" flex="33">
-	<md-content>
-		<div layout>
-			<md-input-container flex>
-				<label>Date</label>
-				<input ng-model="newTransaction.date">
+	<md-dialong-content>
+		<div class="md-dialog-content">
+			<md-input-container>
+				<label>Description</label>
+				<input ng-model="newTransaction.description">
 			</md-input-container>
-			<md-input-container flex>
-	    		<label>Amount</label>
-				<input ng-model="newTransaction.amount">
-			</md-input-container>
+			<div layout>
+				<md-input-container flex>
+		    		<label>Amount</label>
+					<input ng-model="newTransaction.amount">
+				</md-input-container>
+				<md-datepicker ng-model="newTransaction.date" md-placeholder="Select Date"></md-datepicker>
+			</div>	
+			<md-select placeholder="Type" ng-model="newTransaction.type">
+				<md-option value="W">Withdrawal</md-option>
+				<md-option value="D">Deposit</md-option>
+			</md-select>
+			<md-checkbox ng-model="newTransaction.complete" aria-label="">
+				Complete
+			</md-checkbox>
 		</div>
-		<md-input-container>
-			<label>Description</label>
-			<input ng-model="newTransaction.description">
-		</md-input-container>
-		
-		<md-select placeholder="Type" ng-model="newTransaction.type">
-			<md-option value="W">Withdrawal</md-option>
-			<md-option value="D">Deposit</md-option>
-		</md-select>
-		<md-checkbox ng-model="newTransaction.complete" aria-label="">
-			Complete
-		</md-checkbox>
-	</md-content>
+	</md-dialog-content>
 	<div class="md-actions">
 		<md-button ng-click="cancelDialog()">
 			Cancel

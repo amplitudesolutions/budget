@@ -56,13 +56,21 @@ angular.module('myApp.dashboard', ['ngRoute'])
 			//.parent(angular.element(document.body))
 			.title('')
 			.content('Would you like to delete this list?')
-			.ariaLabel('')
+			// .targetEvent(ev)
 			.ok('Yes')
-			.cancel('No')
-			.targetEvent(ev);
+			.cancel('No');
+			
 		$mdDialog.show(confirm).then(function() {
 			lists.delete(list);
+			$scope.showToast(list.name + ' Deleted');
 		});
+	};
+
+	$scope.showToast = function(content) {
+		$mdToast.show($mdToast.simple()
+			.content(content)
+			.action('UNDO'));
+			//.parent();
 	};
 
 }])

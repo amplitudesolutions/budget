@@ -1,11 +1,13 @@
 <md-dialog aria-label="Add List">
 	<form ng-submit="saveList()">
-		<md-content>
-			<md-input-container>
-				<label>Budget Name</label>
-				<input ng-model="newList.name">
-			</md-input-container>
-		</md-content>
+		<md-dialog-content>
+			<div class="md-dialog-content">
+				<md-input-container>
+					<label>Budget Name</label>
+					<input ng-model="newList.name">
+				</md-input-container>
+			</div>
+		</md-dialog-content>
 		<div class="md-actions">
 			<md-button ng-click="cancelDialog()">
 				Cancel
